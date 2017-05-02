@@ -28,6 +28,11 @@ public class IntentHandlerFactory {
                 rv = new PlayTrackHandler();
                 break;
 
+            case "PlayArtist":
+                rv = new PlayArtistHandler();
+                break;
+
+
  /*
             case "PlayPlaylist":
                 rv = new PlayPlaylistHandler();
@@ -35,9 +40,7 @@ public class IntentHandlerFactory {
             case "PlayAlbum":
                 rv = new PlayAlbumHandler();
                 break;
-            case "PlayArtist":
-                rv = new PlayArtistHandler();
-                break;
+
  */
         }
 

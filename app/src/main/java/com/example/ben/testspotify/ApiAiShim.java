@@ -69,11 +69,11 @@ public class ApiAiShim implements AIListener {
 
     @Override
     public void onListeningCanceled() {
-        shimListener.ApiAiUIOff();
+
     }
 
     @Override
     public void onListeningFinished() {
-
+        shimListener.ApiAiUIOff();
     }
 }

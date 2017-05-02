@@ -41,6 +41,7 @@ public class SearchAndPlay implements SpotifyPlayer.NotificationCallback,Connect
 
     private Player mPlayer;
     private Context context;
+    private int trackNumber = 1;
 
     public SearchAndPlay(Context cContext) {
         context = cContext;
@@ -87,6 +88,13 @@ public class SearchAndPlay implements SpotifyPlayer.NotificationCallback,Connect
         Track item = mItems.get(0);
         String url = "spotify:track:" + item.id;
         mPlayer.playUri(null,url,0,0);
+    }
+
+    public void playNextMusic(){
+        Track item = mItems.get(trackNumber);
+        String url = "spotify:track:" + item.id;
+        mPlayer.playUri(null,url,0,0);
+        trackNumber++;
     }
 
     public void resumeMusic(){

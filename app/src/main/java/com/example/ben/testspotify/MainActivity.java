@@ -17,47 +17,14 @@ import com.google.gson.JsonElement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-//import java.util.jar.Manifest;
-
-/*
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.Spotify;
-import com.spotify.sdk.android.player.SpotifyPlayer;
-
-import org.w3c.dom.Text;
-
-import java.util.List;
 
 
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TracksPager;
 
-import retrofit.client.Response;
-import retrofit.Callback;
-
-import java.util.concurrent.TimeUnit;
-
-*/
 
 public class MainActivity extends AppCompatActivity implements ApiAiShimListener {
 
 
-  /*  private static final int REQUEST_CODE = 1337;
-    private static final String CLIENT_ID = "abd357acc5ce43c5acd09bccddf8df9b";
-    private static final String REDIRECT_URI = "rsps://callback/";
-    private static final String MY_ACCESS_TOKEN = "access_token";
-2017.04.21*/
+
     private ApiAiShim nlp;
     private StringSpeaker voice;
     private PermissionRequester permRequester;
@@ -68,18 +35,7 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
     public static final String TAG = MainActivity.class.getName();
 
 
-    /*2017.04.21 afternoon
-    private String token;
-    private String client_id;
-    private final List<Track> mItems = new ArrayList<>();
 
-    private SpotifyApi spotifyApi;
-    private SpotifyService mSpotifyApi;
-    private String query = "beethoven";
-    private Map<String,Object> options = new HashMap<String,Object>();
-    private Player mPlayer;
-
-*/
     private String token;
     private String client_id;
     private SearchAndPlay searchAndPlay;
@@ -104,15 +60,7 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
         voice = new StringSpeaker(this);
         permRequester = new PermissionRequester(this);
         permRequester.request(Manifest.permission.RECORD_AUDIO);
-      //  inputEditText = (EditText)findViewById(R.id.inputEditText);
-     /*   AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN,
-                REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming"});
-        AuthenticationRequest request = builder.build();
 
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-2017.04.21*/
 
 
         searchAndPlay = new SearchAndPlay(MainActivity.this);
@@ -147,51 +95,7 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
         permRequester.storeResult(requestCode, permissions[0], grantResults);
     }
 
-/*    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
 
-        // Check if result comes from the correct activity
- /*2017.04.20       if (requestCode == REQUEST_CODE) {
-            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
-                Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-                    @Override
-                    public void onInitialized(SpotifyPlayer spotifyPlayer) {
-                        mPlayer = spotifyPlayer;
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addNotificationCallback(MainActivity.this);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
-
-                CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
-
-                token = response.getAccessToken();
-                spotifyApi = new SpotifyApi();
-                spotifyApi.setAccessToken(token);
-                mSpotifyApi = spotifyApi.getService();*/
-/*2017.04.20
-                mSpotifyApi.searchTracks(query, options, new SpotifyCallback<TracksPager>() {
-                    @Override
-                    public void failure(SpotifyError spotifyError) {
-                        Log.d("Here", "That's a failure");
-                    }
-
-                    @Override
-                    public void success(TracksPager tracksPager, Response response) {
-                        Log.d("Here", "This is a test");
-                        mItems.addAll(tracksPager.tracks.items);
-                    }
-                });*/
-     //       }
-
-//    }*/
 
     @Override
     protected void onDestroy() {
@@ -199,54 +103,7 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
         searchAndPlay.withDestroy();
         super.onDestroy();
     }
-/*2017.04.21 afternoon
-    @Override
-    public void onPlaybackEvent(PlayerEvent playerEvent) {
-        Log.d("MainActivity", "Playback event received: " + playerEvent.name());
-        switch (playerEvent) {
-            // Handle event type as necessary
-            default:
-                break;
-        }
-    }
 
-    @Override
-    public void onPlaybackError(Error error) {
-        Log.d("MainActivity", "Playback error received: " + error.name());
-        switch (error) {
-            // Handle error type as necessary
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public void onLoggedIn() {
-        Log.d("MainActivity", "User logged in");
-     //   mPlayer.playUri(null,"spotify:track:0rxA51EJiKiK6JgSgGKsog",0,0);
-
-    }
-
-    @Override
-    public void onLoggedOut() {
-        Log.d("MainActivity", "User logged out");
-    }
-
-    @Override
-    public void onLoginFailed(Error error) {
-        Log.d("MainActivity", "Logged failed");
-    }
-
-    @Override
-    public void onTemporaryError() {
-        Log.d("MainActivity", "Temporary error occurred");
-    }
-
-    @Override
-    public void onConnectionMessage(String message) {
-        Log.d("MainActivity", "Received connection message: " + message);
-    }
-*/
 
     public void ApiAiError(final String error){
         runOnUiThread(new Runnable() {
@@ -271,13 +128,16 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
             }
         }
 
-        IntentHandler handler = IntentHandlerFactory.createHandler(intent, params);
-        if(handler != null)
-            sQuery = handler.handle(params);
-        searchAndPlay.searchTrack(sQuery,options);
+        if(!intent.equals("PlayNext") ) {
+            IntentHandler handler = IntentHandlerFactory.createHandler(intent, params);
+            if (handler != null)
+                sQuery = handler.handle(params);
+            searchAndPlay.searchTrack(sQuery, options);
+        }else{
+            searchAndPlay.playNextMusic();
+        }
 
 
-//        searchAndPlay.playMusic();
     }
 
 
@@ -299,29 +159,7 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
         });
     }
     public void startPlayMusic(final View view){
-        //mPlayer.playUri(null,"spotify:track:0rxA51EJiKiK6JgSgGKsog",0,0);
-//        query = inputEditText.getText().toString();
-/*2017.04.21 afternoon
-        Log.d("hey","you guy");
-        mSpotifyApi.searchTracks(query, options, new SpotifyCallback<TracksPager>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d("Here", "That's a failure");
-            }
 
-            @Override
-            public void success(TracksPager tracksPager, Response response) {
-                Log.d("Here", "This is a test");
-                mItems.addAll(tracksPager.tracks.items);
-            }
-        });*/
-     /*   Track item = mItems.get(1);
-        resultTextView.setText(item.name);
-        String url = "spotify:track:" + item.id;
-        mPlayer.playUri(null,url,0,0);
-*/
-//        resultTextView.setText(searchAndPlay.getData());
-//        searchAndPlay.playMusic();
         nlp.startRecognition();
     }
 
@@ -332,53 +170,11 @@ public class MainActivity extends AppCompatActivity implements ApiAiShimListener
 
 
     public void stopPlayMusic(final View view){
-    //    mPlayer.pause(null);
-        /*2017.04.21 afternoon
-        Track item = mItems.get(0);
-        resultTextView.setText(item.name);
-        String url = "spotify:track:" + item.id;
-        mPlayer.playUri(null,url,0,0);*/
-//        resultTextView.setText(searchAndPlay.getData());
-//        searchAndPlay.stopMusic();
+
         nlp.stopRecognition();
     }
-/*2017.04.21 afternoon
-    public void searchTrack(String stQuery,Map<String,Object> mOptions){
-        mSpotifyApi.searchTracks(stQuery, mOptions, new SpotifyCallback<TracksPager>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d("Here", "That's a failure");
-            }
-
-            @Override
-            public void success(TracksPager tracksPager, Response response) {
-                Log.d("Here", "This is a test");
-                mItems.addAll(tracksPager.tracks.items);
-            }
-        });
 
 
 
-    }
 
-    public void initPlay(String sToken,String sId){
-        Config playerConfig=new Config(this,sToken,sId);
-        Spotify.getPlayer(playerConfig,this,new SpotifyPlayer.InitializationObserver(){
-        @Override
-        public void onInitialized(SpotifyPlayer spotifyPlayer){
-               mPlayer=spotifyPlayer;
-               mPlayer.addConnectionStateCallback(MainActivity.this);
-               mPlayer.addNotificationCallback(MainActivity.this);
-        }
-
-        @Override
-        public void onError(Throwable throwable){
-                Log.e("MainActivity","Could not initialize player: "+throwable.getMessage());
-        }
-        });
-
-        spotifyApi=new SpotifyApi();
-        spotifyApi.setAccessToken(sToken);
-        mSpotifyApi=spotifyApi.getService();
-    }*/
 }
