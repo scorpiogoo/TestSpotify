@@ -78,6 +78,7 @@ public class SearchAndPlay implements SpotifyPlayer.NotificationCallback,Connect
             public void success(TracksPager tracksPager, Response response) {
                 Log.d("Here", "This is a test");
                 mItems.addAll(tracksPager.tracks.items);
+                playMusic();
             }
         });
     }

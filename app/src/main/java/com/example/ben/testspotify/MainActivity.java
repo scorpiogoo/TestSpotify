@@ -2,17 +2,22 @@ package com.example.ben.testspotify;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.view.View;
 
+import com.google.gson.JsonElement;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+//import java.util.jar.Manifest;
 
 /*
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -45,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 
 */
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements ApiAiShimListener {
 
 
   /*  private static final int REQUEST_CODE = 1337;
@@ -53,10 +58,17 @@ public class MainActivity extends AppCompatActivity  {
     private static final String REDIRECT_URI = "rsps://callback/";
     private static final String MY_ACCESS_TOKEN = "access_token";
 2017.04.21*/
+    private ApiAiShim nlp;
+    private StringSpeaker voice;
+    private PermissionRequester permRequester;
+    private static final String clientToken = "a6e2843793354ff5840c8b815b1dcb21";
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
 
-/*2017.04.21 afternoon
+    public static final String TAG = MainActivity.class.getName();
+
+
+    /*2017.04.21 afternoon
     private String token;
     private String client_id;
     private final List<Track> mItems = new ArrayList<>();
@@ -73,6 +85,7 @@ public class MainActivity extends AppCompatActivity  {
     private SearchAndPlay searchAndPlay;
     private Map<String,Object> options = new HashMap<String,Object>();
     private TextView resultTextView;
+    private ImageView recListener;
  //   private EditText inputEditText;
 
     public static Intent createIntent(Context context) {
@@ -86,6 +99,11 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         resultTextView = (TextView)findViewById(R.id.resultTextView);
+        recListener = (ImageView)findViewById(R.id.recListener);
+        nlp = new ApiAiShim(this,clientToken,this);
+        voice = new StringSpeaker(this);
+        permRequester = new PermissionRequester(this);
+        permRequester.request(Manifest.permission.RECORD_AUDIO);
       //  inputEditText = (EditText)findViewById(R.id.inputEditText);
      /*   AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN,
@@ -122,6 +140,11 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        permRequester.storeResult(requestCode, permissions[0], grantResults);
     }
 
 /*    @Override
@@ -224,6 +247,57 @@ public class MainActivity extends AppCompatActivity  {
         Log.d("MainActivity", "Received connection message: " + message);
     }
 */
+
+    public void ApiAiError(final String error){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                resultTextView.setText(error);
+            }
+        });
+    }
+
+    public void ApiAiResult(String speech,String intent,HashMap<String,JsonElement> params){
+        String sQuery = "";
+        resultTextView.setText(speech);
+        voice.pronounce(speech);
+
+
+        // Just for debugging.
+        if (params != null && !params.isEmpty()) {
+            Log.i(TAG, "Parameters: ");
+            for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
+                Log.i(TAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
+            }
+        }
+
+        IntentHandler handler = IntentHandlerFactory.createHandler(intent, params);
+        if(handler != null)
+            sQuery = handler.handle(params);
+        searchAndPlay.searchTrack(sQuery,options);
+
+
+//        searchAndPlay.playMusic();
+    }
+
+
+    public void ApiAiUIOn(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recListener.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    public void ApiAiUIOff(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recListener.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
     public void startPlayMusic(final View view){
         //mPlayer.playUri(null,"spotify:track:0rxA51EJiKiK6JgSgGKsog",0,0);
 //        query = inputEditText.getText().toString();
@@ -246,12 +320,14 @@ public class MainActivity extends AppCompatActivity  {
         String url = "spotify:track:" + item.id;
         mPlayer.playUri(null,url,0,0);
 */
-        resultTextView.setText(searchAndPlay.getData());
-        searchAndPlay.playMusic();
+//        resultTextView.setText(searchAndPlay.getData());
+//        searchAndPlay.playMusic();
+        nlp.startRecognition();
     }
 
     public void resumePlayMusic(final View view){
-        searchAndPlay.resumeMusic();
+       // searchAndPlay.playMusic();
+        searchAndPlay.stopMusic();
     }
 
 
@@ -263,7 +339,8 @@ public class MainActivity extends AppCompatActivity  {
         String url = "spotify:track:" + item.id;
         mPlayer.playUri(null,url,0,0);*/
 //        resultTextView.setText(searchAndPlay.getData());
-        searchAndPlay.stopMusic();
+//        searchAndPlay.stopMusic();
+        nlp.stopRecognition();
     }
 /*2017.04.21 afternoon
     public void searchTrack(String stQuery,Map<String,Object> mOptions){
