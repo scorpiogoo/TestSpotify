@@ -42,6 +42,7 @@ public class SearchAndPlay implements SpotifyPlayer.NotificationCallback,Connect
     private Player mPlayer;
     private Context context;
     private int trackNumber = 1;
+    private String AcQuery = "";
 
     public SearchAndPlay(Context cContext) {
         context = cContext;
@@ -69,19 +70,36 @@ public class SearchAndPlay implements SpotifyPlayer.NotificationCallback,Connect
     }
 
     public void searchTrack(String stQuery,Map<String,Object> mOptions){
-        mSpotifyApi.searchTracks(stQuery, mOptions, new SpotifyCallback<TracksPager>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d("Here", "That's a failure");
-            }
+        if(mItems.isEmpty() && !stQuery.equals(AcQuery)) {
+            mSpotifyApi.searchTracks(stQuery, mOptions, new SpotifyCallback<TracksPager>() {
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    Log.d("Here", "That's a failure");
+                }
 
-            @Override
-            public void success(TracksPager tracksPager, Response response) {
-                Log.d("Here", "This is a test");
-                mItems.addAll(tracksPager.tracks.items);
-                playMusic();
-            }
-        });
+                @Override
+                public void success(TracksPager tracksPager, Response response) {
+                    Log.d("Here", "This is a test");
+                    mItems.addAll(tracksPager.tracks.items);
+                    playMusic();
+                }
+            });
+        }else{
+            mItems.clear();
+            mSpotifyApi.searchTracks(stQuery, mOptions, new SpotifyCallback<TracksPager>() {
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    Log.d("Here", "That's a failure");
+                }
+
+                @Override
+                public void success(TracksPager tracksPager, Response response) {
+                    Log.d("Here", "This is a test");
+                    mItems.addAll(tracksPager.tracks.items);
+                    playMusic();
+                }
+            });
+        }
     }
 
     public void playMusic(){
